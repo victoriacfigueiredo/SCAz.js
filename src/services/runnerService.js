@@ -8,6 +8,7 @@ const OverridingAssignmentAnalysisStrategy = require('../strategies/analysisStra
 const DefaultAnalysisStrategy = require('../strategies/analysisStrategy/DefaultAnalysisStrategy')
 const path = require('path')
 const { BASE_DIR } = require('../../config')
+const { AnalysisParamService } = require('../services/analysisParamService')
 
 const logger = new Logger('Runner')
 class RunnerService {
@@ -79,18 +80,20 @@ class RunnerService {
     return this.runExecutionUnit(analysisExecutionUnit,countElapsedTime)
   }
 
-  runAnalysisRaw = (inputFilePath, analysisPath) => {
+  runAnalysisRaw = (inputFilePath, analysisPath, lineToBranchMapPath) => {
     const chainedAnalysesPath = path.join(BASE_DIR, 'jalangi2', 'src', 'js', 'sample_analyses', 'ChainedAnalyses.js')
     const smemoryAnalysisPath = path.join(BASE_DIR, 'jalangi2', 'src', 'js', 'runtime', 'SMemory.js')
     const jalangiPath = path.join(BASE_DIR, 'jalangi2', 'src', 'js', 'commands', 'direct.js')
     const jalangiInstPath = path.join(BASE_DIR, 'jalangi2', 'src', 'js', 'commands', 'esnstrument_cli.js')
     const instFilePath = path.join(path.dirname(inputFilePath), `${path.basename(inputFilePath, '.js')}_jalangi_.js`)
+    const extraParams = AnalysisParamService.encodeParams({lineToBranchMapPath, inputFilePath})
 
     const instrumentationCommand = (`node ${jalangiInstPath} ` +
       `--inlineIID ` +
       `--inlineSource ` +
       `${inputFilePath}`)
     const runAnalysisCommand = (`node ${jalangiPath} ` +
+      `--initParam extraParams:${extraParams} ` +
       `--analysis ${chainedAnalysesPath} ` +
       `--analysis ${smemoryAnalysisPath} ` +
       `--analysis ${analysisPath} ` +
@@ -102,11 +105,11 @@ class RunnerService {
         const { result, elapsedTime } = this.runProcess(runAnalysisCommand)
         if (result.status != null && result.status === 0 && result.stdout) {
           logger.log(`Execution stdout: \n${result.stdout}`);
-          return
+          return result.stdout
         } else {
           logger.log(`Execution error!`);
           if (result.error) {
-            throw error
+            throw result.error
           } else {
             throw new Error(result.stderr)
           }

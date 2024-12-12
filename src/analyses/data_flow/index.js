@@ -5,7 +5,6 @@
     if (!J$.initParams.extraParams) {
         throw new Error('No extraParams provided')
     }
-    console.log(`oi`)
     const extraParamsObject = AnalysisParamService.decodeParams(J$.initParams.extraParams)
 
     const LINE_TO_BRANCH_MAP = require(extraParamsObject.lineToBranchMapPath)
@@ -16,10 +15,6 @@
 
         this.latestAssignments = {};
         this.allReads = {};
-
-        this.scriptEnter = function (iid, instrumentedFileName, originalFileName) {
-            console.log(`oi`)
-        };
 
         this.write = function (iid, name, val, lhs, isGlobal, isScriptLocal) {
             const frameId = sandbox.smemory.getIDFromShadowObjectOrFrame(sandbox.smemory.getShadowFrame(name))
@@ -32,7 +27,7 @@
                 branch: branch,
                 location: location
             };
-            console.log(`[write] latestAssignments:`, this.latestAssignments);
+            // console.log(`[write] latestAssignments:`, this.latestAssignments);
             return {result: val};
         };
 
@@ -48,7 +43,7 @@
                 value: val,
                 location: location
             }
-            console.log(`[putField] latestAssignments:`, this.latestAssignments);
+            // console.log(`[putField] latestAssignments:`, this.latestAssignments);
             return {result: val};
         };
 
@@ -68,11 +63,11 @@
                 location: location
             });
 
-            if (this.latestAssignments[varKey] && this.latestAssignments[varKey].branch !== branch) {
+            if (this.latestAssignments[varKey] && this.latestAssignments[varKey].branch && this.latestAssignments[varKey].branch !== branch) {
                 console.log(`[DF Detected] Variable "${name}" read at ${location} was last written in a different branch.`);
             }
 
-            console.log(`[read] allReads:`, this.allReads);
+            // console.log(`[read] allReads:`, this.allReads);
             return {result: val};
         };
 
@@ -93,11 +88,11 @@
                 location: location
             });
 
-            if (this.latestAssignments[fieldKey] && this.latestAssignments[fieldKey].branch !== branch) {
+            if (this.latestAssignments[fieldKey] && this.latestAssignments[fieldKey].branch && this.latestAssignments[fieldKey].branch !== branch) {
                 console.log(`[DF Detected] Field "${offset}" of object read at ${location} was last written in a different branch.`);
             }
 
-            console.log(`[getField] allReads:`, this.allReads);
+            // console.log(`[getField] allReads:`, this.allReads);
             return {result: val};
         };
 
