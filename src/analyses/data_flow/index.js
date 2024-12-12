@@ -35,7 +35,7 @@
             const actualObjectId = sandbox.smemory.getIDFromShadowObjectOrFrame(sandbox.smemory.getShadowObject(base, offset, false).owner)
             const location = J$.iidToLocation(J$.sid, iid)
             const branch = LocationToBranchService.getInstance().mapLocationLineRangeToBranch(location)
-            const fieldKey = actualObjectId + offset
+            const fieldKey = `${actualObjectId}_${offset}`
             this.latestAssignments[fieldKey] = {
                 base: base,
                 offset: offset,
@@ -75,7 +75,7 @@
             const actualObjectId = sandbox.smemory.getIDFromShadowObjectOrFrame(sandbox.smemory.getShadowObject(base, offset, false).owner)
             const location = J$.iidToLocation(J$.sid, iid)
             const branch = LocationToBranchService.getInstance().mapLocationLineRangeToBranch(location)
-            const fieldKey = actualObjectId + offset
+            const fieldKey = `${actualObjectId}_${offset}`
 
             if (!this.allReads[fieldKey]) {
                 this.allReads[fieldKey] = []

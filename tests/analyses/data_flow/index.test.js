@@ -12,9 +12,7 @@ const runner = new RunnerService();
 
 describe('Overriding Assignment Analysis Test Cases', () => {
     test.each([
-        // { testCase: 'example', conflict: true },
-        // { testCase: 'innerClassRecursiveNotConflictSample', conflict: true }, // ERRO
-        { testCase: 'additionToArrayConflictSample', conflict: true }, // divergent => change name
+        { testCase: 'example', conflict: true },
         { testCase: 'arrawDataFlowSample', conflict: true }
     ])('$testCase, conflict: $conflict', ({ testCase, conflict: hasEvent }) => {
         const result = runner.runAnalysisRaw(
