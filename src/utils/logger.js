@@ -4,7 +4,7 @@ class Logger {
     }
 
     log = (msg) => {
-        console.log(this.addContext(msg))
+        //console.log(this.addContext(msg))
     }
 
     addContext = (msg) => {

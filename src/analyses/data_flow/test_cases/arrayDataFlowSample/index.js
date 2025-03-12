@@ -14,12 +14,12 @@ var br;
                         }
                         ArrayDataFlowSample.main = function (args) {
                             var arr = [0, 0, 0, 0, 0];
-                            arr = ArrayDataFlowSample.populate(arr.length);
-                            arr[4] = 10;
-                            var b = arr[4];
+                            arr = ArrayDataFlowSample.populate(arr.length); //L
+                            arr[4] = 10; //L
+                            var b = arr[4]; //R
                             for (var index21915 = 0; index21915 < arr.length; index21915++) {
                                 var a = arr[index21915];
-                                console.info(a);
+                                console.info(a); //R
                             }
                         };
                         /*private*/ ArrayDataFlowSample.populate = function (size) {

@@ -8,7 +8,7 @@ class OverridingAssignmentService {
         this.functionCallStack = new FunctionCallStack()
         this.interferences = []
     }
-
+    
     functionHandler(func) {
         if ((!this.functionCallStack.isEmpty() || func.getBranch()) && func.isBeforeInvoke()) {
             this.functionCallStack.push(func)

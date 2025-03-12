@@ -1,7 +1,7 @@
 (function (sandbox) {
     const { AnalysisParamService } = require('../../services/analysisParamService')
     const { LocationToBranchService} = require('../overriding_assignment/services')
-
+    const { FunctionCall } = require('../overriding_assignment/models')
     if (!J$.initParams.extraParams) {
         throw new Error('No extraParams provided')
     }
@@ -12,9 +12,10 @@
     LocationToBranchService.getInstance().setInputs(LINE_TO_BRANCH_MAP, INPUT_FILE_PATH)
 
     function DataFlowAnalysis() {
-
         this.latestAssignments = {};
         this.allReads = {};
+        this.dependencies = {};
+        this.functionCallStack = [];
 
         this.write = function (iid, name, val, lhs, isGlobal, isScriptLocal) {
             const frameId = sandbox.smemory.getIDFromShadowObjectOrFrame(sandbox.smemory.getShadowFrame(name))
@@ -27,6 +28,13 @@
                 branch: branch,
                 location: location
             };
+            if (this.dependencies[varKey]) {
+                this.dependencies[varKey].forEach(dep => {
+                    if (this.latestAssignments[dep] && this.latestAssignments[dep].branch !== branch) {
+                        console.log(`[DF Indirect Detected] Variable "${name}" at ${location} indirectly depends on "${dep}" modified in a different branch.`);
+                    }
+                });
+            }
             // console.log(`[write] latestAssignments:`, this.latestAssignments);
             return {result: val};
         };
@@ -63,6 +71,15 @@
                 location: location
             });
 
+            Object.keys(this.latestAssignments).forEach(writeKey => {
+                if (this.latestAssignments[writeKey].value === val) {
+                    if (!this.dependencies[writeKey]) {
+                        this.dependencies[writeKey] = new Set();
+                    }
+                    this.dependencies[writeKey].add(varKey);
+                }
+            });
+
             if (this.latestAssignments[varKey] && this.latestAssignments[varKey].branch && this.latestAssignments[varKey].branch !== branch) {
                 console.log(`[DF Detected] Variable "${name}" read at ${location} was last written in a different branch.`);
             }
@@ -97,11 +114,20 @@
         };
 
         this.invokeFunPre = function (iid, f, base, args, isConstructor, isMethod, functionIid, functionSid) {
-            return {f: f, base: base, args: args, skip: false};
+            // const location = J$.iidToLocation(J$.sid, iid);
+            // const functionCallBranch = LocationToBranchService.getInstance().mapLocationEndLineToBranch(location);
+            // const func = new FunctionCall(functionIid, f.name, location, functionCallBranch, true)
+            // // if (!this.functionCallStack.isEmpty() || func.getBranch()) {
+            // //     this.functionCallStack.push(func)
+            // // }            
         };
 
+
         this.invokeFun = function (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) {
-            return {result: result};
+            // const location = J$.iidToLocation(J$.sid, iid);
+            // const functionCallBranch = LocationToBranchService.getInstance().mapLocationEndLineToBranch(location)
+            // const func =  FunctionCall(functionIid, f.name, location, functionCallBranch, false)
+            // // this.functionCallStack.pop(func)
         };
 
         this.endExecution = function () {
