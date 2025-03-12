@@ -43,7 +43,7 @@
             const actualObjectId = sandbox.smemory.getIDFromShadowObjectOrFrame(sandbox.smemory.getShadowObject(base, offset, false).owner)
             const location = J$.iidToLocation(J$.sid, iid)
             const branch = LocationToBranchService.getInstance().mapLocationLineRangeToBranch(location)
-            const fieldKey = `${actualObjectId}_${offset}`
+            const fieldKey = actualObjectId + offset
             this.latestAssignments[fieldKey] = {
                 base: base,
                 offset: offset,
@@ -92,7 +92,7 @@
             const actualObjectId = sandbox.smemory.getIDFromShadowObjectOrFrame(sandbox.smemory.getShadowObject(base, offset, false).owner)
             const location = J$.iidToLocation(J$.sid, iid)
             const branch = LocationToBranchService.getInstance().mapLocationLineRangeToBranch(location)
-            const fieldKey = `${actualObjectId}_${offset}`
+            const fieldKey = actualObjectId + offset
 
             if (!this.allReads[fieldKey]) {
                 this.allReads[fieldKey] = []
@@ -114,20 +114,20 @@
         };
 
         this.invokeFunPre = function (iid, f, base, args, isConstructor, isMethod, functionIid, functionSid) {
-            // const location = J$.iidToLocation(J$.sid, iid);
-            // const functionCallBranch = LocationToBranchService.getInstance().mapLocationEndLineToBranch(location);
-            // const func = new FunctionCall(functionIid, f.name, location, functionCallBranch, true)
-            // // if (!this.functionCallStack.isEmpty() || func.getBranch()) {
-            // //     this.functionCallStack.push(func)
-            // // }            
+            const location = J$.iidToLocation(J$.sid, iid);
+            const functionCallBranch = LocationToBranchService.getInstance().mapLocationEndLineToBranch(location);
+            const func = new FunctionCall(functionIid, f.name, location, functionCallBranch, true)
+            if (!this.functionCallStack.isEmpty() || func.getBranch()) {
+                this.functionCallStack.push(func)
+            }            
         };
 
 
         this.invokeFun = function (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) {
-            // const location = J$.iidToLocation(J$.sid, iid);
-            // const functionCallBranch = LocationToBranchService.getInstance().mapLocationEndLineToBranch(location)
-            // const func =  FunctionCall(functionIid, f.name, location, functionCallBranch, false)
-            // // this.functionCallStack.pop(func)
+            const location = J$.iidToLocation(J$.sid, iid);
+            const functionCallBranch = LocationToBranchService.getInstance().mapLocationEndLineToBranch(location)
+            const func =  FunctionCall(functionIid, f.name, location, functionCallBranch, false)
+            this.functionCallStack.pop(func)
         };
 
         this.endExecution = function () {
