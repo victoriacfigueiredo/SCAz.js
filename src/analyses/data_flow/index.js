@@ -117,16 +117,16 @@
             const location = J$.iidToLocation(J$.sid, iid);
             const functionCallBranch = LocationToBranchService.getInstance().mapLocationEndLineToBranch(location);
             const func = new FunctionCall(functionIid, f.name, location, functionCallBranch, true)
-            if (!this.functionCallStack.isEmpty() || func.getBranch()) {
+            if (this.functionCallStack.length > 0 || func.getBranch()) {
                 this.functionCallStack.push(func)
-            }            
+            }
         };
 
 
         this.invokeFun = function (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) {
             const location = J$.iidToLocation(J$.sid, iid);
             const functionCallBranch = LocationToBranchService.getInstance().mapLocationEndLineToBranch(location)
-            const func =  FunctionCall(functionIid, f.name, location, functionCallBranch, false)
+            const func = new FunctionCall(functionIid, f.name, location, functionCallBranch, false)
             this.functionCallStack.pop(func)
         };
 

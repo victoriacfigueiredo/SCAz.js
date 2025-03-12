@@ -103,6 +103,7 @@ class RunnerService {
       try {
         this.runProcess(instrumentationCommand)
         const { result, elapsedTime } = this.runProcess(runAnalysisCommand)
+        console.log(`ANALYSIS OUTPUT:\n\n${result.stdout}`)
         if (result.status != null && result.status === 0 && result.stdout) {
           logger.log(`Execution stdout: \n${result.stdout}`);
           return result.stdout
@@ -115,7 +116,7 @@ class RunnerService {
           }
         }
       } catch (error) {
-        logger.log(`Could not execute analysis, error: ${error?.message} ${error}`);
+        console.log(`Could not execute analysis, error: ${error?.message} ${error}`);
       }
   }
 }
