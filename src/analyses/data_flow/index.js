@@ -28,6 +28,9 @@
                 branch: branch,
                 location: location
             };
+            if (this.functionCallStack.length > 0) {
+                branch = this.functionCallStack[this.functionCallStack.length - 1].branch;
+            }
             if (this.dependencies[varKey]) {
                 this.dependencies[varKey].forEach(dep => {
                     if (this.latestAssignments[dep] && this.latestAssignments[dep].branch !== branch) {
@@ -51,6 +54,9 @@
                 value: val,
                 location: location
             }
+            if (this.functionCallStack.length > 0) {
+                branch = this.functionCallStack[this.functionCallStack.length - 1].branch;
+            }
             // console.log(`[putField] latestAssignments:`, this.latestAssignments);
             return {result: val};
         };
@@ -63,6 +69,9 @@
 
             if (!this.allReads[varKey]) {
                 this.allReads[varKey] = []
+            }
+            if (this.functionCallStack.length > 0) {
+                branch = this.functionCallStack[this.functionCallStack.length - 1].branch;
             }
             this.allReads[varKey].push({
                 name: name, 
@@ -82,6 +91,9 @@
 
             if (this.latestAssignments[varKey] && this.latestAssignments[varKey].branch && this.latestAssignments[varKey].branch !== branch) {
                 console.log(`[DF Detected] Variable "${name}" read at ${location} was last written in a different branch.`);
+            }
+            if (this.functionCallStack > 0 && this.functionCallStack[this.functionCallStack.length - 1].branch !== branch) {
+                console.log(`[DF Detected] Variable "${name}" read at ${location} indirectly depends on a variable modified in a different branch.`);
             }
 
             // console.log(`[read] allReads:`, this.allReads);
@@ -104,9 +116,14 @@
                 value: val,          
                 location: location
             });
-
+            if (this.functionCallStack.length > 0) {
+                branch = this.functionCallStack[this.functionCallStack.length - 1].branch;
+            }
             if (this.latestAssignments[fieldKey] && this.latestAssignments[fieldKey].branch && this.latestAssignments[fieldKey].branch !== branch) {
                 console.log(`[DF Detected] Field "${offset}" of object read at ${location} was last written in a different branch.`);
+            }
+            if (this.functionCallStack > 0 && this.functionCallStack[this.functionCallStack.length - 1].branch !== branch) {
+                console.log(`[DF Detected] Field "${offset}" read at ${location} indirectly depends on a variable modified in a different branch.`);
             }
 
             // console.log(`[getField] allReads:`, this.allReads);
